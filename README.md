@@ -321,4 +321,4 @@ Ce projet est adapte a:
 - Revenue Manager
 - Data Analyst
 - Data Scientist / ML Engineer (pour la partie modele et preprocessing)
-- Product Owner / Manager (pilotage par KPI et impact)
+- Product Owner / Manager (pilotage par KPI et impact) 
