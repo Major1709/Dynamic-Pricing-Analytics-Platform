@@ -1,53 +1,75 @@
 # Dynamic Pricing Analytics Platform
 
-Plateforme Streamlit de pilotage du pricing dynamique, orientee decision et impact business.
+Plateforme decisionnelle de pricing dynamique, orientee resultats et impact business.
 
-Elle permet de:
+Cette application permet de transformer des donnees de pricing en decisions actionnables, en combinant:
 
-- transformer des donnees de pricing en decisions actionnables
-- estimer la demande en fonction du prix via un modele ML avec preprocessing
-- identifier un prix cible optimisant le revenu projete
-- analyser rapidement la performance commerciale par saison, promo, moment de la journee et concurrence
+- visualisation des KPI de performance commerciale
+- simulation de scenarios de prix et projection de revenu
+- prediction de la demande via un modele ML avec preprocessing
+- analyse rapide des leviers de performance (promo, saison, concurrence, time of day)
 
 ## Executive Summary
 
-Ce projet combine visualisation, analyse exploratoire et modelisation predictive dans une meme interface.
+Ce projet regroupe dans une seule interface:
+
+- pilotage business (KPI et dashboards)
+- analyse exploratoire (EDA)
+- simulation pricing
+- prediction de demande
 
 Objectif principal:
 
-- aider un responsable pricing / revenue / data a prendre des decisions plus rapides et mieux justifiees
+- aider les equipes Pricing / Revenue / Data a prendre des decisions plus rapides, plus coherentes et mieux justifiees par la donnee
+
+Resultat attendu:
+
+- passer d'une logique de reporting descriptif a une logique de decision assistee par la simulation et la prediction
 
 Valeur business:
 
 - meilleure visibilite sur les leviers de revenu
-- simulation de scenarios de prix avant mise en production
-- standardisation de l'analyse (meme logique de preprocessing, memes metriques)
 - reduction du temps entre analyse et decision
+- alignement entre metier et data via des indicateurs communs
+- decisions de prix plus defendables (scenarios + metriques + hypotheses explicites)
 
-## Business Impact (orientation impact)
+## Resultats & Impact Business
 
 ### Decisions accelerees
 
-- Centralise KPI, analyses et simulation dans une interface unique
-- Evite de passer entre notebooks, exports CSV et fichiers Excel
+- centralise KPI, analyses et simulation dans une interface unique
+- reduit les allers-retours entre notebooks, exports CSV et feuilles Excel
+- facilite la preparation de supports de decision pour les parties prenantes
 
 ### Meilleure qualite de decision prix
 
-- Le dashboard ne se limite pas a de la visualisation: il integre un modele de prediction pour estimer la demande selon le prix
-- Le prix "optimal" est derive de simulations (prix -> demande -> revenu), pas uniquement d'une moyenne brute
+- le dashboard ne se limite pas a la visualisation: il integre un modele de prediction pour estimer la demande selon le prix
+- le prix "optimal" est derive de simulations (prix -> demande -> revenu), pas uniquement d'une moyenne brute
+- les arbitrages prix/volume/revenu deviennent plus explicites
 
 ### Gouvernance et reproductibilite
 
-- Preprocessing encapsule dans un `Pipeline` sklearn
-- Metriques de modele tracees (`MAE`, `RMSE`, `R2`)
-- Artefacts sauvegardables (`.joblib`, `.json`)
+- preprocessing encapsule dans un `Pipeline` sklearn
+- metriques de modele tracees (`MAE`, `RMSE`, `R2`)
+- artefacts sauvegardables (`.joblib`, `.json`)
+- logique de preparation des donnees reutilisable entre training et dashboard
 
 ### Exemples de cas d'usage
 
-- Evaluer l'effet d'un repositionnement prix avant campagne promo
-- Comparer performance par saison / weekday / time of day
-- Identifier des segments ou la concurrence impacte fortement les ventes
-- Produire rapidement un support de decision pour equipe business/management
+- evaluer l'effet d'un repositionnement prix avant campagne promo
+- comparer la performance par saison / weekday / time of day
+- identifier des segments ou la concurrence impacte fortement les ventes
+- produire rapidement un support de decision pour equipe business / management
+
+### Mesure de l'impact (recommandee)
+
+Pour piloter l'impact du projet dans un contexte reel, comparer avant/apres sur:
+
+- temps moyen de preparation d'une recommandation pricing
+- part des decisions pricing supportees par une simulation ou une prediction
+- ecart entre revenu projete et revenu observe
+- variation du revenu / marge sur les segments pilotes
+- stabilite des performances modele (`RMSE`, `R2`) dans le temps
 
 ## Fonctionnalites
 
@@ -219,15 +241,16 @@ Le fichier de metriques contient notamment:
 - metadata de preprocessing (features numeriques/categorielles)
 - configuration du modele / split
 
-## KPIs a suivre (suggestion)
+## KPIs a suivre (pilotage des resultats)
 
-Pour un usage "impact business", suivre regulierement:
+Pour une lecture orientee resultat et impact, suivre regulierement:
 
-- revenu projete vs revenu reel
-- taux de conversion / volume de ventes apres changement de prix
-- ecart entre demande predite et demande observee
-- evolution de `RMSE` / `R2` apres mise a jour des donnees
-- performance par segment (promo, saison, time of day)
+- revenu projete vs revenu reel (precision business)
+- volume vendu apres variation de prix (impact commercial)
+- ecart demande predite vs demande observee (qualite predictive)
+- evolution de `RMSE` / `R2` apres mise a jour des donnees (sante du modele)
+- performance par segment (promo, saison, time of day, weekday) (actionabilite)
+- delai entre demande metier et recommandation pricing (efficacite operationnelle)
 
 ## Troubleshooting
 
@@ -287,7 +310,15 @@ python3 train_pricing_model.py --no-save
 
 Ce projet est adapte a:
 
-- demos de pricing dynamique
+- demos de pricing dynamique orientees valeur
 - POC analytics / revenue management
+- support de discussion metier-data pour prioriser des experiments pricing
 - base de travail pour une application decisionnelle plus industrialisee
 
+## Public cible
+
+- Pricing Manager
+- Revenue Manager
+- Data Analyst
+- Data Scientist / ML Engineer (pour la partie modele et preprocessing)
+- Product Owner / Manager (pilotage par KPI et impact)
