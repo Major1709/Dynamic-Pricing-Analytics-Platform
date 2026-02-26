@@ -1,0 +1,44 @@
+{
+  "metrics": {
+    "target": "Units Sold",
+    "rows_total": 10000,
+    "rows_train": 8000,
+    "rows_test": 2000,
+    "mae": 150.77655292513967,
+    "rmse": 189.63399053831293,
+    "r2": 0.4482906461182934
+  },
+  "metadata": {
+    "feature_count_raw": 12,
+    "numeric_features": [
+      "Price ($)",
+      "Competitor Price ($)",
+      "Date_year",
+      "Date_month",
+      "Date_day",
+      "Date_dayofweek",
+      "Date_is_month_start",
+      "Date_is_month_end"
+    ],
+    "categorical_features": [
+      "Promo",
+      "Weekday",
+      "Season",
+      "Time of Day"
+    ],
+    "dropped_for_leakage": [
+      "Revenue ($)"
+    ],
+    "engineered_features": [
+      "Date_year",
+      "Date_month",
+      "Date_day",
+      "Date_dayofweek",
+      "Date_is_month_start",
+      "Date_is_month_end"
+    ],
+    "model_type": "RandomForestRegressor",
+    "test_size": 0.2,
+    "random_state": 42
+  }
+}

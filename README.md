@@ -1,95 +1,110 @@
 # Dynamic Pricing Analytics Platform
 
-Application Streamlit de pricing dynamique pour:
+Plateforme Streamlit de pilotage du pricing dynamique, orientee decision et impact business.
 
-- visualiser les indicateurs metier (KPI, projections, simulations)
-- explorer le dataset de pricing (tableau + EDA)
-- entrainer un modele de prediction avec preprocessing sklearn
-- integrer les predictions du modele directement dans le dashboard
+Elle permet de:
 
-Le projet s'appuie sur `pricing_dataset.csv` comme source de donnees principale.
+- transformer des donnees de pricing en decisions actionnables
+- estimer la demande en fonction du prix via un modele ML avec preprocessing
+- identifier un prix cible optimisant le revenu projete
+- analyser rapidement la performance commerciale par saison, promo, moment de la journee et concurrence
 
-## Sommaire
+## Executive Summary
 
-- [Vue d'ensemble](#vue-densemble)
-- [Architecture du projet](#architecture-du-projet)
-- [Fonctionnalites](#fonctionnalites)
-- [Stack technique](#stack-technique)
-- [Installation](#installation)
-- [Execution](#execution)
-- [Entrainement du modele (CLI)](#entrainement-du-modele-cli)
-- [Integration du modele dans le dashboard](#integration-du-modele-dans-le-dashboard)
-- [Schema de donnees attendu](#schema-de-donnees-attendu)
-- [Artefacts generes](#artefacts-generes)
-- [Troubleshooting](#troubleshooting)
-- [Roadmap / ameliorations](#roadmap--ameliorations)
+Ce projet combine visualisation, analyse exploratoire et modelisation predictive dans une meme interface.
 
-## Vue d'ensemble
+Objectif principal:
 
-Ce projet fournit une interface decisionnelle pour un cas de pricing dynamique.
-Il combine:
+- aider un responsable pricing / revenue / data a prendre des decisions plus rapides et mieux justifiees
 
-- un dashboard de pilotage (`pages/Dashbord.py`)
-- un tableau de consultation de donnees (`pages/Tableau.py`)
-- une page d'analyse exploratoire (`pages/Analyse_Donnees.py`)
-- un pipeline de machine learning avec preprocessing (`train_pricing_model.py`)
+Valeur business:
 
-Le dashboard utilise un modele de prediction integre pour estimer la demande en fonction du prix et calculer des scenarios de revenus.
+- meilleure visibilite sur les leviers de revenu
+- simulation de scenarios de prix avant mise en production
+- standardisation de l'analyse (meme logique de preprocessing, memes metriques)
+- reduction du temps entre analyse et decision
+
+## Business Impact (orientation impact)
+
+### Decisions accelerees
+
+- Centralise KPI, analyses et simulation dans une interface unique
+- Evite de passer entre notebooks, exports CSV et fichiers Excel
+
+### Meilleure qualite de decision prix
+
+- Le dashboard ne se limite pas a de la visualisation: il integre un modele de prediction pour estimer la demande selon le prix
+- Le prix "optimal" est derive de simulations (prix -> demande -> revenu), pas uniquement d'une moyenne brute
+
+### Gouvernance et reproductibilite
+
+- Preprocessing encapsule dans un `Pipeline` sklearn
+- Metriques de modele tracees (`MAE`, `RMSE`, `R2`)
+- Artefacts sauvegardables (`.joblib`, `.json`)
+
+### Exemples de cas d'usage
+
+- Evaluer l'effet d'un repositionnement prix avant campagne promo
+- Comparer performance par saison / weekday / time of day
+- Identifier des segments ou la concurrence impacte fortement les ventes
+- Produire rapidement un support de decision pour equipe business/management
+
+## Fonctionnalites
+
+### 1) Dashboard de pilotage (`pages/Dashbord.py`)
+
+- KPI metier (demande predite, prix recommande, projection de revenu, elasticite locale)
+- courbe d'optimisation prix -> demande -> revenu
+- cartes "Metrics Dashboard" (vision management)
+- visualisations Plotly (forecast, saisonnalite, concurrence, distribution)
+- tableau de simulation de scenarios
+- integration directe du modele ML avec preprocessing
+- affichage des performances du modele (`RMSE`, `R2`)
+
+### 2) Tableau de donnees (`pages/Tableau.py`)
+
+- recherche multi-colonnes
+- pagination
+- rendu type DataTable (HTML/CSS)
+- formatage monetaire et volumetrique
+
+### 3) Analyse de donnees / EDA (`pages/Analyse_Donnees.py`)
+
+- filtres (date, season, promo, time of day, plage de prix, recherche texte)
+- KPIs sur donnees filtrees
+- distributions et segmentations
+- evolutions temporelles
+- statistiques descriptives
+- matrice de correlation
+- qualite des donnees (valeurs manquantes)
+- export CSV du sous-ensemble filtre
+
+### 4) Training modele avec preprocessing (`train_pricing_model.py`)
+
+- preprocessing `ColumnTransformer` + `Pipeline`
+- imputation variables numeriques / categorielles
+- encodage `OneHotEncoder`
+- feature engineering sur `Date`
+- controle de fuite de donnees (leakage)
+- modele `RandomForestRegressor`
+- evaluation (`MAE`, `RMSE`, `R2`)
+- sauvegarde modele + metadonnees
 
 ## Architecture du projet
 
 ```text
 Price/
-├── app.py                             # Page d'accueil Streamlit
+├── app.py                             # Home Streamlit
 ├── pricing_dataset.csv                # Donnees source
-├── train_pricing_model.py             # Training + preprocessing + export des artefacts
+├── train_pricing_model.py             # Training ML + preprocessing + export artefacts
 ├── artifacts/
-│   ├── pricing_demand_model.joblib    # Modele sauvegarde (pipeline sklearn)
-│   └── pricing_demand_metrics.json    # Metriques et metadata du modele
+│   ├── pricing_demand_model.joblib    # Pipeline sklearn sauvegarde
+│   └── pricing_demand_metrics.json    # Metriques / metadata du modele
 └── pages/
-    ├── Dashbord.py                    # Dashboard principal (KPI + visualisations + simulation)
-    ├── Tableau.py                     # Tableau pagine / recherche multi-colonnes
-    └── Analyse_Donnees.py             # EDA / statistiques / correlations / export CSV
+    ├── Dashbord.py                    # Dashboard principal (visualisation + modele)
+    ├── Tableau.py                     # Tableau pagine / recherche
+    └── Analyse_Donnees.py             # Analyse exploratoire (EDA)
 ```
-
-## Fonctionnalites
-
-### Dashboard (`pages/Dashbord.py`)
-
-- KPI metier (demande predite, prix optimal, projection de revenu, elasticite locale)
-- courbe d'optimisation prix -> demande -> revenu
-- visualisations Plotly (forecast, saisonnalite, concurrence, distribution, etc.)
-- simulation de scenarios de pricing
-- cartes de performance du modele (RMSE / R2)
-- integration du pipeline de machine learning avec preprocessing (cache Streamlit)
-
-### Tableau (`pages/Tableau.py`)
-
-- recherche texte sur toutes les colonnes
-- pagination
-- rendu HTML stylise (inspire DataTable)
-- formatage des montants et volumes
-
-### Analyse de donnees (`pages/Analyse_Donnees.py`)
-
-- filtres interactifs (date, saison, promo, time of day, plage de prix, recherche)
-- KPI sur sous-ensemble filtre
-- distributions, evolutions et segmentations
-- statistiques descriptives
-- matrice de correlation
-- controle des valeurs manquantes
-- export CSV des donnees filtrees
-
-### Training du modele (`train_pricing_model.py`)
-
-- preprocessing via `ColumnTransformer` + `Pipeline`
-- imputation des variables numeriques et categorielles
-- encodage `OneHotEncoder`
-- feature engineering sur `Date`
-- gestion de la fuite de donnees (ex: retrait de `Revenue ($)` si prediction de `Units Sold`)
-- entrainement `RandomForestRegressor`
-- evaluation (`MAE`, `RMSE`, `R2`)
-- sauvegarde du pipeline et des metriques
 
 ## Stack technique
 
@@ -102,7 +117,7 @@ Price/
 
 ## Installation
 
-### 1. Creer et activer un environnement virtuel
+### 1. Creer un environnement virtuel
 
 ```bash
 python3 -m venv .venv
@@ -118,13 +133,13 @@ pip install streamlit pandas numpy plotly scikit-learn joblib
 
 ## Execution
 
-### Lancer l'application Streamlit
+### Lancer la plateforme
 
 ```bash
 streamlit run app.py
 ```
 
-Ensuite, naviguer dans la sidebar Streamlit vers:
+Pages disponibles dans la sidebar:
 
 - `Dashbord`
 - `Tableau`
@@ -138,13 +153,13 @@ Ensuite, naviguer dans la sidebar Streamlit vers:
 python3 train_pricing_model.py
 ```
 
-### Entrainement sans sauvegarde (verification rapide)
+### Test rapide sans sauvegarde
 
 ```bash
 python3 train_pricing_model.py --no-save
 ```
 
-### Parametres disponibles (exemples)
+### Exemple avec parametres explicites
 
 ```bash
 python3 train_pricing_model.py \
@@ -157,23 +172,28 @@ python3 train_pricing_model.py \
 
 ## Integration du modele dans le dashboard
 
-Le dashboard principal utilise des fonctions de `train_pricing_model.py` pour:
+Le dashboard principal reutilise la logique du script de training pour garantir la coherence entre:
 
-- preparer les features avec preprocessing identique au training
-- entrainer (ou recalculer) un pipeline sur les donnees courantes
-- generer des predictions "what-if" en fonction du prix
-- calculer le prix optimal (maximisation du revenu projete)
-- afficher les metriques du modele (RMSE / R2)
+- preprocessing applique au modele
+- predictions de simulation affichees dans l'interface
+- metriques de performance exposees au metier
+
+Concretement, le dashboard:
+
+- entraine un pipeline (cache Streamlit)
+- simule la demande pour une grille de prix
+- calcule un prix maximisant le revenu projete
+- affiche les KPI et scenarios issus de ce modele
 
 Notes d'exploitation:
 
-- le premier chargement de `pages/Dashbord.py` peut etre plus lent (entrainement)
-- les executions suivantes sont plus rapides grace a `@st.cache_resource`
-- si `pricing_dataset.csv` change, le cache est rafraichi
+- premier chargement potentiellement plus lent (entrainement)
+- reruns acceleres via `@st.cache_resource`
+- recalcul automatique si `pricing_dataset.csv` est modifie
 
 ## Schema de donnees attendu
 
-Le dataset `pricing_dataset.csv` est attendu avec les colonnes suivantes:
+Colonnes attendues dans `pricing_dataset.csv`:
 
 - `Date`
 - `Price ($)`
@@ -187,26 +207,36 @@ Le dataset `pricing_dataset.csv` est attendu avec les colonnes suivantes:
 
 ## Artefacts generes
 
-Lors de l'entrainement (sans `--no-save`), les fichiers suivants sont generes:
+Lors d'un entrainement avec sauvegarde:
 
 - `artifacts/pricing_demand_model.joblib`
 - `artifacts/pricing_demand_metrics.json`
 
-Contenu typique de `pricing_demand_metrics.json`:
+Le fichier de metriques contient notamment:
 
 - metriques d'evaluation (`mae`, `rmse`, `r2`)
-- volumetrie (train/test)
-- metadata preprocessing (features numeriques/categorielles)
-- type de modele et configuration de split
+- tailles train/test
+- metadata de preprocessing (features numeriques/categorielles)
+- configuration du modele / split
+
+## KPIs a suivre (suggestion)
+
+Pour un usage "impact business", suivre regulierement:
+
+- revenu projete vs revenu reel
+- taux de conversion / volume de ventes apres changement de prix
+- ecart entre demande predite et demande observee
+- evolution de `RMSE` / `R2` apres mise a jour des donnees
+- performance par segment (promo, saison, time of day)
 
 ## Troubleshooting
 
-### 1. Texte peu visible (theme sombre / CSS)
+### Texte peu visible / conflit de theme Streamlit
 
-Le projet applique du CSS pour ameliorer la lisibilite sur cartes blanches.
-Si le rendu n'est pas a jour:
+Le projet applique des styles CSS sur fond clair.
+En cas de rendu incoherent:
 
-- recharger la page avec `Ctrl+F5`
+- faire `Ctrl+F5`
 - relancer Streamlit
 
 Optionnel: forcer un theme clair via `.streamlit/config.toml`
@@ -216,22 +246,19 @@ Optionnel: forcer un theme clair via `.streamlit/config.toml`
 base = "light"
 ```
 
-### 2. Warning joblib (mode serial)
+### Warning joblib (serial mode)
 
-Dans certains environnements, un warning peut apparaitre:
+Un warning de type `joblib will operate in serial mode` peut apparaitre selon l'environnement.
+Ce warning n'empeche pas l'entrainement ni l'inference.
 
-- `joblib will operate in serial mode`
-
-Ce warning n'empeche pas l'entrainement ni l'utilisation du modele.
-
-### 3. Aucune donnee apres filtrage (page Analyse_Donnees)
+### Aucun resultat apres filtrage (EDA)
 
 Verifier:
 
-- plage de dates
-- filtres `Season`, `Promo`, `Time of Day`
+- periode selectionnee
+- filtres (`Season`, `Promo`, `Time of Day`)
 - plage de prix
-- champ de recherche texte
+- recherche texte
 
 ## Commandes utiles
 
@@ -239,7 +266,7 @@ Verifier:
 # Lancer l'application
 streamlit run app.py
 
-# Entrainer le modele et sauvegarder les artefacts
+# Entrainer le modele (avec sauvegarde)
 python3 train_pricing_model.py
 
 # Tester le pipeline sans sauvegarde
@@ -250,13 +277,17 @@ python3 train_pricing_model.py --no-save
 
 - page de prediction dediee (formulaire d'inference)
 - bouton "Reentrainer le modele" dans le dashboard
-- chargement direct du modele depuis `artifacts/` (si disponible)
+- chargement du modele depuis `artifacts/` au lieu de re-entrainer dans la page
 - export PDF / image des dashboards
-- `requirements.txt` et/ou `pyproject.toml`
+- `requirements.txt` ou `pyproject.toml`
 - tests unitaires (preprocessing, training, inference)
-- monitoring des metriques du modele dans le temps
+- suivi des performances modele dans le temps (monitoring)
 
-## Auteur / contexte
+## Positionnement
 
-Projet de demonstration/analysis pour un cas de pricing dynamique avec Streamlit + scikit-learn.
+Ce projet est adapte a:
+
+- demos de pricing dynamique
+- POC analytics / revenue management
+- base de travail pour une application decisionnelle plus industrialisee
 
